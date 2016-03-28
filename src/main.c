@@ -136,6 +136,32 @@ double interpolateDD(double X, double Values[][4], double step, int N)
 	return toRet;
 }
 
+double interpolateDDd(double X, double Values[][4], double step, int N)
+{
+	int i;
+	double toRet=0.0;
+	//toRet  = 0.5 * (/*Values[0][1]*f_up(0.5*(X-Values[0][0]-2.0)/step) + */Values[0][1]*f_up(0.5*(X-Values[0][0]-1.0)/step) +  Values[0][1]*f_up(0.5*(X-Values[0][0])/step)+Values[1][1]*f_up(0.5*(X-Values[1][0])/step)+Values[2][1]*f_up(0.5*(X-Values[2][0])/step));
+	//toRet = Values[0][1]*f_up((X-Values[0][0]-2.0)/step);
+	if(X>=Values[0][0] && X<Values[1][0])
+		toRet = Values[0][1]+(X-Values[0][0])*Values[0][2]+(X-Values[0][0])*(X-Values[0][0])*0.5*Values[0][3];
+
+	if(X>=Values[N-2][0] && X<=Values[N-1][0])
+		toRet = Values[N-2][1]+(X-Values[N-2][0])*Values[N-2][2]+(X-Values[N-2][0])*(X-Values[N-2][0])*0.5*Values[N-2][3];
+
+	if(X>=Values[1][0] && X<Values[N-2][0])
+		for(i=1;i<N-1;i++)
+		{
+				if(Values[i][0]<=X && Values[i+1][0]>X && i!=0)
+					toRet  = 0.5 * (Values[i-2][1]*f_up(0.5*(X-Values[i-2][0])/step) + Values[i-1][1]*f_up(0.5*(X-Values[i-1][0])/step) +  Values[i][1]*f_up(0.5*(X-Values[i][0])/step)+Values[i+1][1]*f_up(0.5*(X-Values[i+1][0])/step)+Values[i+2][1]*f_up(0.5*(X-Values[i+2][0])/step));
+					//toRet -= 0.25 * (X-Values[i][0])*(Values[i-1][2]*f_up((X-Values[i-1][0])/step) + Values[i][2]*f_up((X-Values[i][0])/step) + Values[i+1][2]*f_up((X-Values[i+1][0])/step));
+					toRet -= 0.25 * (Values[i-1][2]*(X-Values[i-1][0])*f_up((X-Values[i-1][0])/step) + Values[i][2]*(X-Values[i][0])*f_up((X-Values[i][0])/step) + Values[i+1][2]*(X-Values[i+1][0])*f_up((X-Values[i+1][0])/step));
+		}
+	//if(X> 0 && X<Values[1][0])
+	//	toRet  = 0.5 * (/*Values[0][1]*f_up(0.5*(X-Values[0][0]-2.0)/step) + */Values[0][1]*f_up(0.5*(X-Values[0][0]-1.0)/step) +  Values[0][1]*f_up(0.5*(X-Values[0][0])/step)+Values[1][1]*f_up(0.5*(X-Values[1][0])/step)+Values[2][1]*f_up(0.5*(X-Values[2][0])/step));
+
+	return toRet;
+}
+
 
 int main()
 {
@@ -157,7 +183,7 @@ int main()
 		}
 
 		for(i=0;i<201;i++){
-			result[i][j/10] = interpolateDD(hh*i,val,h,j);
+			result[i][j/10] = interpolateDDd(hh*i,val,h,j);
 		}
 	}
 	
@@ -165,21 +191,21 @@ int main()
 	//output section
 	if(1){
 		
-		//just values output
+		/*//just values output
 		for(j=0;j<201;j++){
 			printf("%f ",hh*j);
 			for(k=1;k<16;k++)
 				printf("%f ",result[j][k]);
 			printf("\n");
-		}
+		}*/
 		
-		/*//full error graphic output
+		//full error graphic output
 		for(j=0;j<201;j++){
 			printf("%f ",hh*j);
 			for(k=1;k<16;k++)
 				printf("%f ",result[j][k]-1.0/(1+hh*hh*j*j));
 			printf("\n");
-		}*/
+		}
 		
 		
 		/*//max error output
